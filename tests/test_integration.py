@@ -2,9 +2,11 @@ import hypothesis.extra.numpy as np_st
 import hypothesis.strategies as st
 import numpy as np
 import openmdao.api as om
+import pytest
 from hypothesis import given, settings
 
 from openmdao_bridge_matlab import MatlabScriptComponent
+from openmdao_utils.external_tools import VarMap
 
 
 @given(np_st.arrays(np.float, np_st.array_shapes()))
@@ -18,8 +20,8 @@ def test_continuous(value):
         "passthrough",
         MatlabScriptComponent(
             script_path="tests/data/passthrough.m",
-            inputs={"in": {"matlab_name": "a", "shape": value.shape}},
-            outputs={"out": {"matlab_name": "b", "shape": value.shape}},
+            inputs=[VarMap("in", "a", shape=value.shape)],
+            outputs=[VarMap("out", "b", shape=value.shape)],
         ),
     )
     model.connect("indeps.x", "passthrough.in")
