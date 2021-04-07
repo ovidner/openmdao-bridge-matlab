@@ -128,15 +128,17 @@ class MatlabFunctionComp(om.ExplicitComponent):
                 inp = inputs[var.name]
             input_data[var.ml_name] = var.om_to_ml(inp)
 
+        num_outs = len(self.options["outputs"])
         output_data = matlab_state.engine.feval(
             self.options["function_name"],
             *input_data.values(),
-            nargout=len(self.options["outputs"]),
+            nargout=num_outs,
         )
 
         for var_idx, var in enumerate(self.options["outputs"]):
             # outp = output_data[var_map.ext_name]
-            outp = var.ml_to_om(output_data[var_idx])
+            # output_data is a scalar if only one output
+            outp = var.ml_to_om(output_data if num_outs == 1 else output_data[var_idx])
             if var.discrete:
                 discrete_outputs[var.name] = outp
             else:
