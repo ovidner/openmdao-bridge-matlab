@@ -1,4 +1,5 @@
 import dataclasses
+import os
 from types import SimpleNamespace
 from typing import Any
 
@@ -88,6 +89,7 @@ class MatlabFunctionComp(om.ExplicitComponent):
         matlab_state.engine = None
 
     def setup(self):
+        self.working_directory = os.path.abspath(self.options["working_directory"])
         for var in self.options["inputs"]:
             if var.discrete:
                 self.add_discrete_input(var.name, val=var.value)
@@ -109,13 +111,11 @@ class MatlabFunctionComp(om.ExplicitComponent):
     def ensure_matlab_engine(self):
         if not matlab_state.engine:
             matlab_state.engine = matlab.engine.connect_matlab()
-            matlab_state.engine.eval(
-                f"cd(\"{self.options['working_directory']}\");", nargout=0
-            )
-            if self.options["desktop"]:
-                matlab_state.engine.desktop(nargout=0)
-            if self.options["stop_on_error"]:
-                matlab_state.engine.eval("dbstop if error", nargout=0)
+        matlab_state.engine.eval(f'cd("{self.working_directory}");', nargout=0)
+        if self.options["desktop"]:
+            matlab_state.engine.desktop(nargout=0)
+        if self.options["stop_on_error"]:
+            matlab_state.engine.eval("dbstop if error", nargout=0)
 
     def compute(self, inputs, outputs, discrete_inputs=None, discrete_outputs=None):
         self.ensure_matlab_engine()
