@@ -1,0 +1,12 @@
+{
+  "title": "OpenMDAO-Bridge-MATLAB",
+  "description": "An OpenMDAO component for running analyses in MATLAB.",
+  "license": "MIT",
+  "creators": [
+    {
+      "affiliation": "Link\u00f6ping University",
+      "name": "Olle Vidner",
+      "orcid": "0000-0002-1157-2480"
+    }
+  ]
+}
