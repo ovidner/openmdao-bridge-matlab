@@ -1,4 +1,5 @@
 # OpenMDAO-Bridge-MATLAB
+[![DOI](https://zenodo.org/badge/DOI/10/gpqk.svg)](https://doi.org/gpqk)
 
 An OpenMDAO component for running analyses in MATLAB.
 
