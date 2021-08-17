@@ -130,9 +130,7 @@ class MatlabFunctionComp(om.ExplicitComponent):
 
         num_outs = len(self.options["outputs"])
         output_data = matlab_state.engine.feval(
-            self.options["function_name"],
-            *input_data.values(),
-            nargout=num_outs,
+            self.options["function_name"], *input_data.values(), nargout=num_outs,
         )
 
         for var_idx, var in enumerate(self.options["outputs"]):
