@@ -8,6 +8,6 @@ setup(
     packages=find_packages(where="src"),
     package_dir={"": "src"},
     python_requires=">=3.6, <4",
-    install_requires=["openmdao"],
+    install_requires=["openmdao", "pymatbridge"],
     setup_requires=["setuptools_scm"],
 )

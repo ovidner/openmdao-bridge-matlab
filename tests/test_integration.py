@@ -1,16 +1,12 @@
 import hypothesis.extra.numpy as np_st
-import hypothesis.strategies as st
 import numpy as np
 import openmdao.api as om
-import pytest
 from hypothesis import given, settings
-
-from openmdao_bridge_matlab import MatlabScriptComponent
-from openmdao_utils.external_tools import VarMap
+from openmdao_bridge_matlab import MatlabFunctionComp, MatlabVar
 
 
 @given(np_st.arrays(np.float, np_st.array_shapes()))
-@settings(max_examples=10, deadline=10000)
+@settings(max_examples=10, deadline=30000)
 def test_continuous(value):
     prob = om.Problem()
     model = prob.model
@@ -18,17 +14,21 @@ def test_continuous(value):
     model.add_subsystem("indeps", om.IndepVarComp("x", val=value))
     model.add_subsystem(
         "passthrough",
-        MatlabScriptComponent(
-            script_path="tests/data/passthrough.m",
-            inputs=[VarMap("in", "a", shape=value.shape)],
-            outputs=[VarMap("out", "b", shape=value.shape)],
+        MatlabFunctionComp(
+            function_name="tests/data/passthrough.m",
+            inputs=[MatlabVar(name="in", value=np.nan, ml_name="a", shape=value.shape)],
+            outputs=[
+                MatlabVar(name="out", value=np.nan, ml_name="b", shape=value.shape)
+            ],
         ),
     )
     model.connect("indeps.x", "passthrough.in")
 
-    prob.setup()
-    prob.run_model()
-    prob.cleanup()
+    try:
+        prob.setup()
+        prob.run_model()
+    finally:
+        prob.cleanup()
 
     # Using a normal == comparison will not consider NaNs as equal.
     assert np.allclose(prob["indeps.x"], value, atol=0.0, rtol=0.0, equal_nan=True)
