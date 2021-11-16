@@ -1,0 +1,89 @@
+name: Build and test
+on:
+  - push
+  - pull_request
+  - release
+jobs:
+  package:
+    defaults:
+      run:
+        shell: bash -l {0}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: conda-incubator/setup-miniconda@v2
+        with:
+          channels: ovidner,conda-forge,defaults
+          channel-priority: strict
+      - run: conda install -y conda-build conda-verify
+      - name: Retrieve the source code
+        uses: actions/checkout@v2
+        with:
+          # Include all history to get tags etc.
+          fetch-depth: 0
+      - name: Build the package
+        run: conda build conda-recipe --no-test --output-folder build-output
+      - name: Reduce the size of the build artifact
+        run: rm -rf build-output/*/.cache
+      - name: Upload the build artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: package-${{ github.sha }}
+          path: build-output
+
+  test:
+    needs: package
+    strategy:
+      matrix:
+        python:
+          - "3.9"
+          - "3.8"
+          - "3.7"
+        openmdao:
+          - "3.13"
+          - "3.12"
+          - "3.11"
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash -l {0}
+    steps:
+      - uses: conda-incubator/setup-miniconda@v2
+        with:
+          channels: ovidner,conda-forge,defaults
+          channel-priority: strict
+      - run: conda install -y conda-build conda-verify
+      - name: Download the build artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: package-${{ github.sha }}
+          path: build-output
+      - name: Test the package
+        run: conda build --extra-deps "python=${{ matrix.python }}" "openmdao=${{ matrix.openmdao }}" --test build-output/*/*.tar.bz2
+
+  upload:
+    needs: test
+    runs-on: ubuntu-latest
+    # if: github.event_name == 'release'
+    defaults:
+      run:
+        shell: bash -l {0}
+    steps:
+      - uses: conda-incubator/setup-miniconda@v2
+      - run: conda install -y anaconda-client
+      - name: Download the build artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: package-${{ github.sha }}
+          path: build-output
+      - name: Test Anaconda auth
+        env:
+          ANACONDA_TOKEN: ${{ secrets.ANACONDA_TOKEN }}
+        run: anaconda --verbose --token $ANACONDA_TOKEN whoami
+      - name: Upload to anaconda.org
+        env:
+          ANACONDA_TOKEN: ${{ secrets.ANACONDA_TOKEN }}
+          ANACONDA_USER: ovidner
+          GITHUB_REF: ${{ github.ref }}
+        run: |
+          [[ "$GITHUB_REF" =~ ^refs/tags/ ]] || export LABEL="--label dev"
+          anaconda --verbose --token $ANACONDA_TOKEN upload --user $ANACONDA_USER $LABEL build-output/*/*.tar.bz2 --force

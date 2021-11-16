@@ -27,3 +27,8 @@ requirements:
     - numpy
     - openmdao
     - python
+    - pymatbridge
+
+test:
+  imports:
+    - openmdao_bridge_matlab
