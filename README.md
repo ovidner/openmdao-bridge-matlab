@@ -5,9 +5,8 @@ An OpenMDAO component for running analyses in MATLAB.
 
 ## Prerequisites/Installation
 
-You will need a Conda environment to install the bridge in. Additionally, this environment must have the [MATLAB Engine API for Python](https://se.mathworks.com/help/matlab/matlab-engine-for-python.html) installed.
-
-Within your Conda environment, run the following:
+You will need a Conda environment to install the bridge in. Within your Conda
+environment, run the following:
 
     conda install -c ovidner openmdao-bridge-matlab
 
