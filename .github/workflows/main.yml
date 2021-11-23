@@ -16,7 +16,7 @@ jobs:
           channels: ovidner,conda-forge,defaults
           channel-priority: strict
           python-version: 3.9
-      - run: conda install -y conda-build conda-verify
+      - run: conda install -y conda=4.10 conda-build conda-verify
       - name: Retrieve the source code
         uses: actions/checkout@v2
         with:
@@ -54,7 +54,7 @@ jobs:
           channels: ovidner,conda-forge,defaults
           channel-priority: strict
           python-version: 3.9
-      - run: conda install -y conda-build conda-verify
+      - run: conda install -y conda=4.10 conda-build conda-verify
       - name: Download the build artifacts
         uses: actions/download-artifact@v2
         with:
