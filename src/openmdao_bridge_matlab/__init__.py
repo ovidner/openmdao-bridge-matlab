@@ -1,4 +1,5 @@
 import dataclasses
+import pathlib
 from typing import Any
 
 import numpy as np
@@ -22,7 +23,7 @@ class MatlabVar:
 
 class MatlabFunctionComp(om.ExplicitComponent):
     def initialize(self):
-        self.options.declare("function_name", types=str)
+        self.options.declare("function_name", types=(str, pathlib.Path))
         self.options.declare("inputs", types=list)
         self.options.declare("outputs", types=list)
         self.options.declare("desktop", default=False, types=bool)
