@@ -19,6 +19,8 @@ class MatlabVar:
     discrete: bool = False
     shape: tuple = (1,)
     units: str = None
+    # TODO: this is ugly. come up with an elegant way to solve it!
+    semvar: object = None
 
 
 class MatlabFunctionComp(om.ExplicitComponent):
@@ -39,6 +41,10 @@ class MatlabFunctionComp(om.ExplicitComponent):
 
     def setup(self):
         for var in self.options["inputs"]:
+            if var.semvar:
+                var.semvar.add_as_input(self)
+                continue
+
             if var.discrete:
                 self.add_discrete_input(var.name, val=var.value)
             else:
@@ -47,6 +53,10 @@ class MatlabFunctionComp(om.ExplicitComponent):
                 )
 
         for var in self.options["outputs"]:
+            if var.semvar:
+                var.semvar.add_as_output(self)
+                continue
+
             if var.discrete:
                 self.add_discrete_output(var.name, val=var.value)
             else:
