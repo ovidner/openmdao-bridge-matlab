@@ -88,7 +88,7 @@ class MatlabFunctionComp(om.ExplicitComponent):
 
         if not response["success"]:
             raise om.AnalysisError(
-                f'MATLAB session "{session}" failed with message: {response["content"]["stdout"]}'
+                f'MATLAB session "{session}" failed with message "{response["content"]["stdout"]}" and stack {response["stack"]}'
             )
 
         result = response["result"]
