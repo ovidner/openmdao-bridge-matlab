@@ -56,7 +56,7 @@ jobs:
           python-version: 3.9
       - run: conda install -y conda=4.10 conda-build conda-verify
       - name: Download the build artifacts
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4.1.7
         with:
           name: package-${{ github.sha }}
           path: build-output
@@ -76,7 +76,7 @@ jobs:
           python-version: 3.9
       - run: conda install -y anaconda-client
       - name: Download the build artifacts
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4.1.7
         with:
           name: package-${{ github.sha }}
           path: build-output
